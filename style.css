@@ -20,6 +20,32 @@ body {
   z-index: 1;
 }
 
+/* Hide EmulatorJS start button / overlays */
+.ejs_start_button,
+.ejs_start_overlay,
+.ejs-cue,
+button[class*="start"],
+div[class*="start"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Force emulator canvas fullscreen */
+canvas,
+.ejs_canvas,
+.ejs_player,
+.ejs_container {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  object-fit: contain !important;
+}
+
 #loading-screen,
 #denied-screen {
   position: fixed;
