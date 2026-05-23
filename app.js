@@ -16,6 +16,7 @@ function registerGame(tag, core, gameUrl) {
 // registerGame("TAG_UNICO", "core", "ruta/del/juego.ext");
 registerGame("NES_MARIO_001", "nes", "roms/NES/mario.nes");
 registerGame("SNES_DKC_001", "snes", "roms/SNES/DKCountry.smc");
+registerGame("PSX_CRASH1_001", "psx", "roms/PSX/Crash1.bin");
 
 const params = new URLSearchParams(window.location.search);
 const tag = params.get("tag");
