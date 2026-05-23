@@ -2,7 +2,7 @@ const allowedTags = {
   NES_MARIO_001: {
     gameUrl: "roms/NES/mario.nes",
     core: "nes"
-  }
+  },
   SNES_DKC_001: {
     gameUrl: "roms/SNES/DKCountry.smc",
     core: "snes"
