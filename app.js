@@ -15,9 +15,10 @@ if (!tag || !allowedTags[tag]) {
   loadingScreen.classList.add("hidden");
   deniedScreen.classList.remove("hidden");
 } else {
-  loadingScreen.querySelector("p").textContent = "Authorized NFC detected...";
-  
-  setTimeout(() => {
-    loadingScreen.querySelector("p").textContent = "Emulator coming soon...";
-  }, 1000);
+  loadingScreen.classList.add("hidden");
+
+  window.EJS_player = "#game";
+  window.EJS_core = "nes";
+  window.EJS_gameUrl = "roms/mario.nes";
+  window.EJS_pathtodata = "data/";
 }
