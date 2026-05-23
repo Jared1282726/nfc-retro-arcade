@@ -1,0 +1,41 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: black;
+  font-family: Arial, sans-serif;
+  color: white;
+}
+
+#loading-screen,
+#denied-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#loading-screen h1,
+#denied-screen h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#game {
+  width: 100vw;
+  height: 100vh;
+}
