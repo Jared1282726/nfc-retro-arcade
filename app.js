@@ -1,6 +1,6 @@
 const allowedTags = {};
 
-function registerGame(tag, core, gameUrl) {
+function registerGame(tag, core, gameUrl, options = {}) {
   if (!tag || !core || !gameUrl) {
     throw new Error("Each game must include tag, core and gameUrl.");
   }
@@ -9,14 +9,36 @@ function registerGame(tag, core, gameUrl) {
     throw new Error(`Duplicate tag detected: ${tag}`);
   }
 
-  allowedTags[tag] = { core, gameUrl };
+  allowedTags[tag] = {
+    core,
+    gameUrl,
+    ...options
+  };
 }
 
-// Add one game per line with this structure:
-// registerGame("TAG_UNICO", "core", "ruta/del/juego.ext");
-registerGame("NES_MARIO_001", "nes", "roms/NES/mario.nes");
-registerGame("SNES_DKC_001", "snes", "roms/SNES/DKCountry.smc");
-registerGame("PSX_CRASH1_001", "psx", "roms/PSX/Crash1.bin");
+// NES
+registerGame(
+  "NES_MARIO_001",
+  "nes",
+  "roms/NES/mario.nes"
+);
+
+// SNES
+registerGame(
+  "SNES_DKC_001",
+  "snes",
+  "roms/SNES/DKCountry.smc"
+);
+
+// PSX via Cloudflare R2
+registerGame(
+  "PSX_CRASH1_001",
+  "psx",
+  "https://pub-dfad97359ea943fa86c939804cd37680.r2.dev/Crash1.chd",
+  {
+    biosUrl: "data/bios/scph1001.bin"
+  }
+);
 
 const params = new URLSearchParams(window.location.search);
 const tag = params.get("tag");
@@ -55,12 +77,21 @@ if (!tag || !allowedTags[tag]) {
 
   window.EJS_player = "#game";
   window.EJS_core = game.core;
+
+  // Absolute URLs stay untouched, local files become full URLs
   window.EJS_gameUrl = new URL(game.gameUrl, pageUrl).toString();
+
   window.EJS_pathtodata = new URL("data/", pageUrl).toString();
+
+  if (game.biosUrl) {
+    window.EJS_biosUrl = new URL(game.biosUrl, pageUrl).toString();
+  }
+
   window.EJS_alignStartButton = "center";
-
   window.EJS_startOnLoaded = false;
-
-  // IMPORTANT
   window.EJS_adUrl = "";
+
+  const script = document.createElement("script");
+  script.src = window.EJS_pathtodata + "loader.js";
+  document.body.appendChild(script);
 }
