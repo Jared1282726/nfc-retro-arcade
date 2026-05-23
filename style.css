@@ -6,12 +6,20 @@ html, body {
   min-height: 100dvh;
   overflow: hidden;
   background: black;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 #game {
   width: 100vw;
   height: 100vh;
   height: 100dvh;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 #loading-screen,

@@ -11,6 +11,26 @@ const pageUrl = new URL(window.location.href);
 
 const loadingScreen = document.getElementById("loading-screen");
 const deniedScreen = document.getElementById("denied-screen");
+const gameContainer = document.getElementById("game");
+
+function disableBrowserGestures(container) {
+  const preventDefault = (event) => {
+    event.preventDefault();
+  };
+
+  const preventContextMenu = (event) => {
+    event.preventDefault();
+  };
+
+  container.addEventListener("contextmenu", preventContextMenu);
+  container.addEventListener("dragstart", preventDefault);
+  container.addEventListener("selectstart", preventDefault);
+  container.addEventListener("gesturestart", preventDefault);
+  container.addEventListener("gesturechange", preventDefault);
+  container.addEventListener("gestureend", preventDefault);
+}
+
+disableBrowserGestures(gameContainer);
 
 if (!tag || !allowedTags[tag]) {
   loadingScreen.classList.add("hidden");
