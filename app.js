@@ -1,6 +1,7 @@
 const allowedTags = {
-  "NES_MARIO_001": {
-    game: "mario"
+  NES_MARIO_001: {
+    gameUrl: "roms/mario.nes",
+    core: "nes"
   }
 };
 
@@ -9,7 +10,6 @@ const tag = params.get("tag");
 
 const loadingScreen = document.getElementById("loading-screen");
 const deniedScreen = document.getElementById("denied-screen");
-const gameContainer = document.getElementById("game");
 
 if (!tag || !allowedTags[tag]) {
   loadingScreen.classList.add("hidden");
@@ -17,8 +17,13 @@ if (!tag || !allowedTags[tag]) {
 } else {
   loadingScreen.classList.add("hidden");
 
+  const game = allowedTags[tag];
+
   window.EJS_player = "#game";
-  window.EJS_core = "nes";
-  window.EJS_gameUrl = "roms/mario.nes";
+  window.EJS_core = game.core;
+  window.EJS_gameUrl = game.gameUrl;
   window.EJS_pathtodata = "data/";
+
+  window.EJS_startOnLoaded = true;
+  window.EJS_fullscreenOnLoad = true;
 }
