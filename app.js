@@ -1,13 +1,21 @@
-const allowedTags = {
-  NES_MARIO_001: {
-    gameUrl: "roms/NES/mario.nes",
-    core: "nes"
-  },
-  SNES_DKC_001: {
-    gameUrl: "roms/SNES/DKCountry.smc",
-    core: "snes"
+const allowedTags = {};
+
+function registerGame(tag, core, gameUrl) {
+  if (!tag || !core || !gameUrl) {
+    throw new Error("Each game must include tag, core and gameUrl.");
   }
-};
+
+  if (allowedTags[tag]) {
+    throw new Error(`Duplicate tag detected: ${tag}`);
+  }
+
+  allowedTags[tag] = { core, gameUrl };
+}
+
+// Add one game per line with this structure:
+// registerGame("TAG_UNICO", "core", "ruta/del/juego.ext");
+registerGame("NES_MARIO_001", "nes", "roms/NES/mario.nes");
+registerGame("SNES_DKC_001", "snes", "roms/SNES/DKCountry.smc");
 
 const params = new URLSearchParams(window.location.search);
 const tag = params.get("tag");
