@@ -10,6 +10,10 @@ body {
   color: white;
 }
 
+body {
+  touch-action: manipulation;
+}
+
 #loading-screen,
 #denied-screen {
   position: fixed;
@@ -22,13 +26,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-}
-
-#loading-screen h1,
-#denied-screen h1 {
-  font-size: 2rem;
-  margin-bottom: 10px;
+  z-index: 9999;
 }
 
 .hidden {
@@ -38,4 +36,11 @@ body {
 #game {
   width: 100vw;
   height: 100vh;
+  display: block;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
 }
