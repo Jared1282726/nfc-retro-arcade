@@ -22,22 +22,10 @@ if (!tag || !allowedTags[tag]) {
   window.EJS_player = "#game";
   window.EJS_core = game.core;
   window.EJS_gameUrl = game.gameUrl;
-  window.EJS_pathtodata = "data/";
+  window.EJS_pathtodata = "./data/";
 
-  // Auto start
   window.EJS_startOnLoaded = true;
-  window.EJS_disableCue = true;
-  window.EJS_fullscreenOnLoad = true;
 
-  // UI cleanup
-  window.EJS_hideSettings = true;
-  window.EJS_hideSaveState = true;
-  window.EJS_hideLoadState = true;
-  window.EJS_hideScreenshot = true;
-  window.EJS_hideQuickSave = true;
-  window.EJS_hideQuickLoad = true;
-
-  // Mobile friendly
-  window.EJS_backgroundColor = "#000000";
-  window.EJS_disableDatabases = true;
+  // IMPORTANT
+  window.EJS_adUrl = "";
 }
