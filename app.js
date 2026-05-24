@@ -36,6 +36,12 @@ registerGame(
   "roms/NES/KirbyAdventure.nes"
 );
 
+registerGame(
+  "NES_METROID_004",
+  "nes",
+  "roms/NES/Metroid.nes"
+);
+
 // SNES
 registerGame(
   "SNES_DKC_001",
