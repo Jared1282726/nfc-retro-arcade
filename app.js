@@ -39,9 +39,9 @@ registerGame(
 
 //GBA
 registerGame(
-  "GBA_MARIO2YOSHI_001",
+  "GBA_MARIOWORLD1_001",
   "gba",
-  "roms/GBA/mario2yoshi.gba"
+  "roms/GBA/marioworld1.gba"
 );
 
 //N64
