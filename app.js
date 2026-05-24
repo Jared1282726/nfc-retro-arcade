@@ -24,6 +24,12 @@ registerGame(
   "roms/NES/mario.nes"
 );
 
+registerGame(
+  "NES_MARIO_003",
+  "nes",
+  "roms/NES/mario3.nes"
+);
+
 // SNES
 registerGame(
   "SNES_DKC_001",
