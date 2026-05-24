@@ -70,8 +70,18 @@ class EJS_GameManager {
         return new Promise(async resolve => {
             this.mkdir("/data");
             this.mkdir("/data/saves");
-            this.FS.mount(this.FS.filesystems.IDBFS, { autoPersist: true }, "/data/saves");
-            this.FS.syncfs(true, resolve);
+            try {
+                this.FS.mount(this.FS.filesystems.IDBFS, { autoPersist: true }, "/data/saves");
+                this.FS.syncfs(true, (err) => {
+                    if (err) {
+                        console.warn("IDBFS sync failed, continuing without persistent saves.", err);
+                    }
+                    resolve();
+                });
+            } catch (err) {
+                console.warn("IDBFS mount failed, continuing without persistent saves.", err);
+                resolve();
+            }
         });
     }
     writeConfigFile() {

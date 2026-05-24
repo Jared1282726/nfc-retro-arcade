@@ -77,6 +77,8 @@ const params = new URLSearchParams(window.location.search);
 const tag = params.get("tag");
 const pageUrl = new URL(window.location.href);
 const debugEnabled = params.get("debug") === "1";
+const userAgent = navigator.userAgent || "";
+const isIPhoneSafari = /iPhone|iPad|iPod/i.test(userAgent) && /Safari/i.test(userAgent) && !/CriOS|FxiOS|EdgiOS/i.test(userAgent);
 
 const loadingScreen = document.getElementById("loading-screen");
 const deniedScreen = document.getElementById("denied-screen");
@@ -173,6 +175,8 @@ if (!tag || !allowedTags[tag]) {
   window.EJS_core = game.core;
   window.EJS_gameUrl = new URL(game.gameUrl, pageUrl).toString();
   window.EJS_pathtodata = EJS_DATA_PATH;
+  window.EJS_disableLocalStorage = isIPhoneSafari;
+  window.EJS_cacheConfig = isIPhoneSafari ? { enabled: false } : undefined;
 
   if (game.biosUrl) {
     window.EJS_biosUrl = new URL(game.biosUrl, pageUrl).toString();
@@ -188,6 +192,7 @@ if (!tag || !allowedTags[tag]) {
     console.log("gameUrl", window.EJS_gameUrl);
     console.log("dataPath", window.EJS_pathtodata);
     console.log("biosUrl", window.EJS_biosUrl || "none");
+    console.log("isIPhoneSafari", isIPhoneSafari);
   }
 
   const script = document.createElement("script");
