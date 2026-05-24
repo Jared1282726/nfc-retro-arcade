@@ -30,7 +30,7 @@ registerGame(
   "roms/SNES/DKCountry.smc"
 );
 
-// PSX via Cloudflare R2
+// PSX
 registerGame(
   "PSX_CRASH1_001",
   "psx",
@@ -49,15 +49,9 @@ const deniedScreen = document.getElementById("denied-screen");
 const gameContainer = document.getElementById("game");
 
 function disableBrowserGestures(container) {
-  const preventDefault = (event) => {
-    event.preventDefault();
-  };
+  const preventDefault = (event) => event.preventDefault();
 
-  const preventContextMenu = (event) => {
-    event.preventDefault();
-  };
-
-  container.addEventListener("contextmenu", preventContextMenu);
+  container.addEventListener("contextmenu", preventDefault);
   container.addEventListener("dragstart", preventDefault);
   container.addEventListener("selectstart", preventDefault);
   container.addEventListener("gesturestart", preventDefault);
@@ -77,10 +71,7 @@ if (!tag || !allowedTags[tag]) {
 
   window.EJS_player = "#game";
   window.EJS_core = game.core;
-
-  // Absolute URLs stay untouched, local files become full URLs
   window.EJS_gameUrl = new URL(game.gameUrl, pageUrl).toString();
-
   window.EJS_pathtodata = new URL("data/", pageUrl).toString();
 
   if (game.biosUrl) {
