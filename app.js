@@ -37,6 +37,13 @@ registerGame(
   "roms/SNES/DKCountry.smc"
 );
 
+//N64
+registerGame(
+  "N64_SF_001",
+  "n64",
+  "roms/N64/StarFox.z64"
+);
+
 // PSX
 registerGame(
   "PSX_CRASH1_001",
