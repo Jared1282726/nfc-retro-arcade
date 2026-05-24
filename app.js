@@ -25,9 +25,9 @@ registerGame(
 );
 
 registerGame(
-  "NES_MARIO_003",
+  "NES_MARIO_002",
   "nes",
-  "roms/NES/mario3.nes"
+  "roms/NES/SuperMarioWorld.nes"
 );
 
 // SNES
