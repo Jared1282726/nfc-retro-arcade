@@ -1,4 +1,5 @@
 const allowedTags = {};
+const EJS_DATA_PATH = "https://cdn.emulatorjs.org/stable/data/";
 
 function registerGame(tag, core, gameUrl, options = {}) {
   if (!tag || !core || !gameUrl) {
@@ -36,7 +37,7 @@ registerGame(
   "psx",
   "https://pub-dfad97359ea943fa86c939804cd37680.r2.dev/Crash1.chd",
   {
-    biosUrl: "data/bios/scph1001.bin"
+    biosUrl: "data/bios/scph1001.BIN"
   }
 );
 
@@ -139,7 +140,7 @@ if (!tag || !allowedTags[tag]) {
   window.EJS_player = "#game";
   window.EJS_core = game.core;
   window.EJS_gameUrl = new URL(game.gameUrl, pageUrl).toString();
-  window.EJS_pathtodata = new URL("data/", pageUrl).toString();
+  window.EJS_pathtodata = EJS_DATA_PATH;
 
   if (game.biosUrl) {
     window.EJS_biosUrl = new URL(game.biosUrl, pageUrl).toString();
