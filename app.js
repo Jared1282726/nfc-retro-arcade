@@ -48,6 +48,12 @@ registerGame(
   "roms/NES/SuperMarioBros3.nes"
 );
 
+registerGame(
+  "NES_SPMARIO2_006",
+  "nes",
+  "roms/NES/SuperMarioBros2.nes"
+);
+
 // SNES
 registerGame(
   "SNES_DKC_001",
