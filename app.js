@@ -41,7 +41,7 @@ registerGame(
 registerGame(
   "GBA_MARIOWORLD1_001",
   "gba",
-  "roms/GBA/marioworld1.gba"
+  "roms/GBA/spmarioworld1.gba"
 );
 
 //N64
