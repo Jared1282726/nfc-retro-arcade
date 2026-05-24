@@ -37,6 +37,13 @@ registerGame(
   "roms/SNES/DKCountry.smc"
 );
 
+//GBA
+registerGame(
+  "SNES_DKC_001",
+  "gba",
+  "roms/GBA/mario2yoshi.gba"
+);
+
 //N64
 registerGame(
   "N64_SF_001",
