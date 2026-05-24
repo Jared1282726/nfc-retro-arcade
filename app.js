@@ -39,7 +39,7 @@ registerGame(
 
 //GBA
 registerGame(
-  "SNES_DKC_001",
+  "GBA_MARIO2YOSHI_001",
   "gba",
   "roms/GBA/mario2yoshi.gba"
 );
