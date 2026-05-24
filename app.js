@@ -30,6 +30,12 @@ registerGame(
   "roms/NES/SuperMarioWorld.nes"
 );
 
+registerGame(
+  "NES_KIRBYADV_003",
+  "nes",
+  "roms/NES/KirbyAdventure.nes"
+);
+
 // SNES
 registerGame(
   "SNES_DKC_001",
