@@ -43,10 +43,76 @@ registerGame(
 const params = new URLSearchParams(window.location.search);
 const tag = params.get("tag");
 const pageUrl = new URL(window.location.href);
+const debugEnabled = params.get("debug") === "1";
 
 const loadingScreen = document.getElementById("loading-screen");
 const deniedScreen = document.getElementById("denied-screen");
 const gameContainer = document.getElementById("game");
+
+function setupDebugOverlay() {
+  if (!debugEnabled) {
+    return;
+  }
+
+  const panel = document.createElement("pre");
+  panel.id = "debug-log";
+  panel.style.position = "fixed";
+  panel.style.left = "12px";
+  panel.style.right = "12px";
+  panel.style.bottom = "12px";
+  panel.style.maxHeight = "40dvh";
+  panel.style.overflow = "auto";
+  panel.style.margin = "0";
+  panel.style.padding = "12px";
+  panel.style.background = "rgba(0, 0, 0, 0.9)";
+  panel.style.color = "#7CFFB2";
+  panel.style.font = "12px/1.4 monospace";
+  panel.style.border = "1px solid rgba(124, 255, 178, 0.35)";
+  panel.style.borderRadius = "10px";
+  panel.style.zIndex = "99999";
+  panel.style.whiteSpace = "pre-wrap";
+  panel.style.pointerEvents = "none";
+  document.body.appendChild(panel);
+
+  const write = (label, value) => {
+    const text = typeof value === "string" ? value : JSON.stringify(value, null, 2);
+    panel.textContent += `[${label}] ${text}\n`;
+    panel.scrollTop = panel.scrollHeight;
+  };
+
+  write("debug", "enabled");
+  write("location", window.location.href);
+
+  window.addEventListener("error", (event) => {
+    write("error", `${event.message} @ ${event.filename}:${event.lineno}`);
+  });
+
+  window.addEventListener("unhandledrejection", (event) => {
+    const reason = event.reason?.stack || event.reason?.message || String(event.reason);
+    write("promise", reason);
+  });
+
+  const originalWarn = console.warn.bind(console);
+  const originalError = console.error.bind(console);
+  const originalLog = console.log.bind(console);
+
+  console.warn = (...args) => {
+    write("warn", args.map(String).join(" "));
+    originalWarn(...args);
+  };
+
+  console.error = (...args) => {
+    write("console.error", args.map(String).join(" "));
+    originalError(...args);
+  };
+
+  console.log = (...args) => {
+    write("log", args.map(String).join(" "));
+    originalLog(...args);
+  };
+}
+
+setupDebugOverlay();
 
 function disableBrowserGestures(container) {
   const preventDefault = (event) => event.preventDefault();
@@ -69,6 +135,7 @@ if (!tag || !allowedTags[tag]) {
 
   const game = allowedTags[tag];
 
+  window.EJS_DEBUG_XX = debugEnabled;
   window.EJS_player = "#game";
   window.EJS_core = game.core;
   window.EJS_gameUrl = new URL(game.gameUrl, pageUrl).toString();
@@ -81,6 +148,14 @@ if (!tag || !allowedTags[tag]) {
   window.EJS_alignStartButton = "center";
   window.EJS_startOnLoaded = false;
   window.EJS_adUrl = "";
+
+  if (debugEnabled) {
+    console.log("tag", tag);
+    console.log("core", window.EJS_core);
+    console.log("gameUrl", window.EJS_gameUrl);
+    console.log("dataPath", window.EJS_pathtodata);
+    console.log("biosUrl", window.EJS_biosUrl || "none");
+  }
 
   const script = document.createElement("script");
   script.src = window.EJS_pathtodata + "loader.js";
