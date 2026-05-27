@@ -68,6 +68,18 @@ registerGame(
   "roms/GBA/spmarioworld1.gba"
 );
 
+registerGame(
+  "GBA_PKMN_RF_002",
+  "gba",
+  "roms/GBA/Pkmn Rojo Fuego.gba"
+);
+
+registerGame(
+  "GBA_PKMN_VH_003",
+  "gba",
+  "roms/GBA/Pkmn Verde Hoja.gba"
+);
+
 //N64
 registerGame(
   "N64_SF_001",
