@@ -71,13 +71,13 @@ registerGame(
 registerGame(
   "GBA_PKMN_RF_002",
   "gba",
-  "roms/GBA/Pkmn Rojo Fuego.gba"
+  "roms/GBA/PkmnRojoFuego.gba"
 );
 
 registerGame(
   "GBA_PKMN_VH_003",
   "gba",
-  "roms/GBA/Pkmn Verde Hoja.gba"
+  "roms/GBA/PkmnVerdeHoja.gba"
 );
 
 //N64
