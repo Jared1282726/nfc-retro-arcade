@@ -80,6 +80,12 @@ registerGame(
   "roms/GBA/pkmnVH.gba"
 );
 
+registerGame(
+  "GBA_PKMN_ESM_004",
+  "gba",
+  "roms/GBA/pkmnESM.gba"
+);
+
 //N64
 registerGame(
   "N64_SF_001",
