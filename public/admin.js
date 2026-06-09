@@ -120,6 +120,17 @@ function findRomByPickerValue(value) {
     || null;
 }
 
+function getCurrentCardCore() {
+  return normalizeCoreValue(cardCore.value);
+}
+
+function getCatalogForCardCore() {
+  const selectedCore = getCurrentCardCore();
+  return selectedCore
+    ? romCatalog.filter((rom) => rom.core === selectedCore)
+    : romCatalog;
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     credentials: "same-origin",
@@ -192,6 +203,7 @@ function applyRomToCard(rom, options = {}) {
   }
 
   primeCardForm();
+  syncGamePickerWithCore();
 }
 
 function renderGamePickerOptions(roms) {
@@ -202,6 +214,19 @@ function renderGamePickerOptions(roms) {
     option.value = buildPickerValue(rom);
     romNameOptions.appendChild(option);
   }
+}
+
+function syncGamePickerWithCore() {
+  const filteredCatalog = getCatalogForCardCore();
+  renderGamePickerOptions(filteredCatalog);
+
+  const selectedRom = findRomByPickerValue(cardGamePicker.value);
+
+  if (selectedRom && filteredCatalog.some((rom) => rom.path === selectedRom.path)) {
+    return;
+  }
+
+  cardGamePicker.value = "";
 }
 
 function renderCards(cards) {
@@ -264,7 +289,7 @@ async function refreshRoms() {
   const { roms } = await api("/api/admin/roms");
   romCatalog = roms.map(normalizeRom);
   romCatalog.sort((left, right) => left.displayName.localeCompare(right.displayName));
-  renderGamePickerOptions(romCatalog);
+  syncGamePickerWithCore();
   applyRomFilter();
 }
 
@@ -338,6 +363,14 @@ cardName.addEventListener("input", () => {
   if (!cardTag.value) {
     cardTag.value = slugifyTag(cardName.value);
   }
+});
+
+cardCore.addEventListener("change", () => {
+  syncGamePickerWithCore();
+});
+
+cardCore.addEventListener("input", () => {
+  syncGamePickerWithCore();
 });
 
 cardGamePicker.addEventListener("change", () => {
@@ -452,6 +485,7 @@ cardForm.addEventListener("submit", async (event) => {
     cardForm.reset();
     cardGamePicker.value = "";
     primeCardForm();
+    syncGamePickerWithCore();
     await refreshCards();
   } catch (error) {
     setMessage(cardResult, "error", error.message);
