@@ -622,7 +622,7 @@ async function handleProtectedEntryRequest(request, env) {
 }
 
 async function serveAdminPage(request, env) {
-  const adminRequest = new Request(new URL("/admin.html", request.url), request);
+  const adminRequest = new Request(new URL("/admin-shell.html", request.url), request);
   const response = await env.ASSETS.fetch(adminRequest);
   const headers = new Headers(response.headers);
   headers.set("Cache-Control", "no-store");
