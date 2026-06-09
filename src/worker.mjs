@@ -669,7 +669,7 @@ export default {
       return handleRomsRequest(request, env);
     }
 
-    if (url.pathname === "/admin" || url.pathname === "/admin/") {
+    if (url.pathname === "/admin" || url.pathname === "/admin/" || url.pathname === "/admin.html") {
       return serveAdminPage(request, env);
     }
 
