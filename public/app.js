@@ -1,110 +1,8 @@
-const allowedTags = {};
 const EJS_DATA_PATH = "https://cdn.emulatorjs.org/stable/data/";
 
-function registerGame(tag, core, gameUrl, options = {}) {
-  if (!tag || !core || !gameUrl) {
-    throw new Error("Each game must include tag, core and gameUrl.");
-  }
-
-  if (allowedTags[tag]) {
-    throw new Error(`Duplicate tag detected: ${tag}`);
-  }
-
-  allowedTags[tag] = {
-    core,
-    gameUrl,
-    ...options
-  };
-}
-
-// NES
-registerGame(
-  "NES_MARIO_001",
-  "nes",
-  "roms/NES/mario.nes"
-);
-
-registerGame(
-  "NES_MARIOWORLD_002",
-  "nes",
-  "roms/NES/SuperMarioWorld.nes"
-);
-
-registerGame(
-  "NES_KIRBYADV_003",
-  "nes",
-  "roms/NES/KirbyAdventure.nes"
-);
-
-registerGame(
-  "NES_METROID_004",
-  "nes",
-  "roms/NES/Metroid.nes"
-);
-
-registerGame(
-  "NES_SPMARIO3_005",
-  "nes",
-  "roms/NES/SuperMarioBros3.nes"
-);
-
-registerGame(
-  "NES_SPMARIO2_006",
-  "nes",
-  "roms/NES/SuperMarioBros2.nes"
-);
-
-// SNES
-registerGame(
-  "SNES_DKC_001",
-  "snes",
-  "roms/SNES/DKCountry.smc"
-);
-
-//GBA
-registerGame(
-  "GBA_MARIOWORLD1_001",
-  "gba",
-  "roms/GBA/spmarioworld1.gba"
-);
-
-registerGame(
-  "GBA_PKMN_RF_002",
-  "gba",
-  "roms/GBA/pkmnRF.gba"
-);
-
-registerGame(
-  "GBA_PKMN_VH_003",
-  "gba",
-  "roms/GBA/pkmnVH.gba"
-);
-
-registerGame(
-  "GBA_PKMN_ESM_004",
-  "gba",
-  "roms/GBA/pkmnESM.gba"
-);
-
-//N64
-registerGame(
-  "N64_SF_001",
-  "n64",
-  "roms/N64/StarFox.z64"
-);
-
-// PSX
-registerGame(
-  "PSX_CRASH1_001",
-  "psx",
-  "https://pub-dfad97359ea943fa86c939804cd37680.r2.dev/Crash1.chd",
-  {
-    biosUrl: "data/bios/scph1001.BIN"
-  }
-);
-
 const params = new URLSearchParams(window.location.search);
-const tag = params.get("tag");
+const cardKey = params.get("key");
+const legacyTag = params.get("tag");
 const pageUrl = new URL(window.location.href);
 const debugEnabled = params.get("debug") === "1";
 const userAgent = navigator.userAgent || "";
@@ -177,8 +75,6 @@ function setupDebugOverlay() {
   };
 }
 
-setupDebugOverlay();
-
 function disableBrowserGestures(container) {
   const preventDefault = (event) => event.preventDefault();
 
@@ -190,26 +86,61 @@ function disableBrowserGestures(container) {
   container.addEventListener("gestureend", preventDefault);
 }
 
-disableBrowserGestures(gameContainer);
-
-if (!tag || !allowedTags[tag]) {
+function showDeniedScreen() {
   loadingScreen.classList.add("hidden");
   deniedScreen.classList.remove("hidden");
-} else {
-  loadingScreen.classList.add("hidden");
+}
 
-  const game = allowedTags[tag];
+async function fetchGameConfig() {
+  if (!cardKey && !legacyTag) {
+    return null;
+  }
+
+  const apiUrl = new URL("/api/game", pageUrl);
+
+  if (cardKey) {
+    apiUrl.searchParams.set("key", cardKey);
+  } else {
+    apiUrl.searchParams.set("tag", legacyTag);
+  }
+
+  const response = await fetch(apiUrl, {
+    cache: "no-store",
+    headers: {
+      Accept: "application/json"
+    }
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return response.json();
+}
+
+function bootGame(game) {
+  loadingScreen.classList.add("hidden");
+  const assetUrl = new URL("/api/asset", pageUrl);
+
+  if (cardKey) {
+    assetUrl.searchParams.set("key", cardKey);
+  } else if (legacyTag) {
+    assetUrl.searchParams.set("tag", legacyTag);
+  }
 
   window.EJS_DEBUG_XX = debugEnabled;
   window.EJS_player = "#game";
   window.EJS_core = game.core;
-  window.EJS_gameUrl = new URL(game.gameUrl, pageUrl).toString();
+  assetUrl.searchParams.set("kind", "game");
+  window.EJS_gameUrl = assetUrl.toString();
   window.EJS_pathtodata = EJS_DATA_PATH;
   window.EJS_disableLocalStorage = isIPhoneSafari;
   window.EJS_cacheConfig = isIPhoneSafari ? { enabled: false } : undefined;
 
-  if (game.biosUrl) {
-    window.EJS_biosUrl = new URL(game.biosUrl, pageUrl).toString();
+  if (game.hasBios) {
+    const biosUrl = new URL(assetUrl);
+    biosUrl.searchParams.set("kind", "bios");
+    window.EJS_biosUrl = biosUrl.toString();
   }
 
   window.EJS_alignStartButton = "center";
@@ -217,7 +148,7 @@ if (!tag || !allowedTags[tag]) {
   window.EJS_adUrl = "";
 
   if (debugEnabled) {
-    console.log("tag", tag);
+    console.log("credentialType", cardKey ? "key" : "tag");
     console.log("core", window.EJS_core);
     console.log("gameUrl", window.EJS_gameUrl);
     console.log("dataPath", window.EJS_pathtodata);
@@ -229,3 +160,22 @@ if (!tag || !allowedTags[tag]) {
   script.src = window.EJS_pathtodata + "loader.js";
   document.body.appendChild(script);
 }
+
+setupDebugOverlay();
+disableBrowserGestures(gameContainer);
+
+(async () => {
+  try {
+    const game = await fetchGameConfig();
+
+    if (!game) {
+      showDeniedScreen();
+      return;
+    }
+
+    bootGame(game);
+  } catch (error) {
+    console.error("Unable to resolve NFC credential.", error);
+    showDeniedScreen();
+  }
+})();

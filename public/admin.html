@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFC Arcade Admin</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="/admin.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Private Console</p>
+        <h1>NFC Arcade Admin</h1>
+        <p class="hero-copy">Sube ROMs, genera nuevas llaves NFC y administra tu catalogo sin editar archivos a mano.</p>
+      </div>
+      <div class="hero-actions">
+        <span id="session-badge" class="badge">Checking session...</span>
+        <button id="logout-button" class="ghost hidden" type="button">Cerrar sesion</button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section id="setup-panel" class="panel warning hidden">
+        <h2>Setup pendiente</h2>
+        <ul id="setup-issues"></ul>
+      </section>
+
+      <section id="login-panel" class="panel">
+        <h2>Acceso</h2>
+        <form id="login-form" class="stack">
+          <label>
+            <span>Password</span>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="primary" type="submit">Entrar al panel</button>
+        </form>
+      </section>
+
+      <section id="dashboard" class="dashboard hidden">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Paso 1</p>
+              <h2>ROMs del Repo</h2>
+            </div>
+            <p class="muted">Los ROMs viven en `public/roms`, pero el publico ya no podra abrirlos directo: el Worker solo los entrega con una NFC key valida.</p>
+          </div>
+
+          <div class="stack">
+            <div class="result">
+              <strong>Flujo recomendado</strong><br />
+              1. Sube el ROM a `public/roms/&lt;core&gt;/` en GitHub.<br />
+              2. Actualiza `public/roms/catalog.json` corriendo `node scripts/build-rom-catalog.mjs`.<br />
+              3. Haz deploy y luego crea la tarjeta desde aqui.<br />
+              4. El ROM quedara oculto detras de `/api/asset?key=...`.
+            </div>
+
+            <label>
+              <span>Filtrar por core</span>
+              <select id="rom-filter-core" name="core">
+                <option value="">Todos</option>
+                <option value="nes">NES</option>
+                <option value="snes">SNES</option>
+                <option value="gba">GBA</option>
+                <option value="gb">GB</option>
+                <option value="gbc">GBC</option>
+                <option value="n64">N64</option>
+                <option value="psx">PSX</option>
+                <option value="segaMD">Sega Genesis</option>
+              </select>
+            </label>
+
+            <button id="refresh-roms-top" class="ghost" type="button">Refrescar catalogo</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Paso 2</p>
+              <h2>Crear NFC</h2>
+            </div>
+            <p class="muted">Cada tarjeta recibe una llave unica que termina en la URL que grabas al NFC.</p>
+          </div>
+
+          <form id="card-form" class="stack">
+            <label>
+              <span>Nombre del juego</span>
+              <input id="card-name" name="name" type="text" placeholder="Super Mario Bros." required />
+            </label>
+
+            <label>
+              <span>Tag interno</span>
+              <div class="inline-field">
+                <input id="card-tag" name="tag" type="text" placeholder="NES_MARIO_007" required />
+                <button id="tag-button" class="ghost" type="button">Autogenerar</button>
+              </div>
+            </label>
+
+            <label>
+              <span>Llave / UUID</span>
+              <div class="inline-field">
+                <input id="card-key" name="key" type="text" placeholder="Se genera sola si lo dejas vacio" />
+                <button id="key-button" class="ghost" type="button">Nueva llave</button>
+              </div>
+            </label>
+
+            <label>
+              <span>Core</span>
+              <select id="card-core" name="core" required>
+                <option value="nes">NES</option>
+                <option value="snes">SNES</option>
+                <option value="gba">GBA</option>
+                <option value="gb">GB</option>
+                <option value="gbc">GBC</option>
+                <option value="n64">N64</option>
+                <option value="psx">PSX</option>
+                <option value="segaMD">Sega Genesis</option>
+              </select>
+            </label>
+
+            <label>
+              <span>Ruta del juego</span>
+              <input id="card-game-url" name="gameUrl" type="text" placeholder="roms/NES/mario.nes" required />
+            </label>
+
+            <label>
+              <span>BIOS opcional</span>
+              <input id="card-bios-url" name="biosUrl" type="text" placeholder="data/bios/scph1001.BIN" />
+            </label>
+
+            <button class="primary" type="submit">Guardar tarjeta NFC</button>
+          </form>
+
+          <div id="card-result" class="result hidden"></div>
+        </div>
+
+        <div class="panel span-2">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Catalogo</p>
+              <h2>Tarjetas registradas</h2>
+            </div>
+            <button id="refresh-cards" class="ghost" type="button">Refrescar</button>
+          </div>
+
+          <div id="cards-empty" class="empty hidden">No hay tarjetas registradas todavia.</div>
+          <div id="cards-list" class="cards-list"></div>
+        </div>
+
+        <div class="panel span-2">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Biblioteca</p>
+              <h2>ROMs subidos</h2>
+            </div>
+            <button id="refresh-roms" class="ghost" type="button">Refrescar</button>
+          </div>
+
+          <div id="roms-empty" class="empty hidden">No hay ROMs registrados en `public/roms`.</div>
+          <div id="roms-list" class="roms-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <template id="card-template">
+    <article class="card-item">
+      <div class="card-meta">
+        <strong data-role="name"></strong>
+        <span class="pill" data-role="source"></span>
+        <span class="pill" data-role="accessMode"></span>
+        <span class="pill soft" data-role="core"></span>
+      </div>
+      <p class="muted mono" data-role="tag"></p>
+      <p class="muted mono" data-role="key"></p>
+      <p class="muted mono" data-role="game"></p>
+      <div class="card-actions">
+        <button class="ghost" data-copy="writeUrl" type="button">Copiar URL NFC</button>
+        <button class="ghost" data-copy="key" type="button">Copiar llave</button>
+      </div>
+    </article>
+  </template>
+
+  <template id="rom-template">
+    <article class="rom-item">
+      <div>
+        <strong data-role="key"></strong>
+        <p class="muted mono" data-role="path"></p>
+      </div>
+      <div class="rom-side">
+        <span class="pill soft" data-role="size"></span>
+        <button class="ghost" data-copy="path" type="button">Usar en NFC</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="/admin.js" type="module"></script>
+</body>
+</html>

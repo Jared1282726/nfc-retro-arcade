@@ -1,0 +1,125 @@
+{
+  "generatedAt": "2026-06-09T19:12:35.514Z",
+  "roms": [
+    {
+      "name": "GameBoy.si",
+      "path": "roms/GB/GameBoy.si",
+      "core": "gb",
+      "size": 2
+    },
+    {
+      "name": "GameBoyAdvance.Yay",
+      "path": "roms/GBA/GameBoyAdvance.Yay",
+      "core": "gba",
+      "size": 2
+    },
+    {
+      "name": "marioworld1.gba",
+      "path": "roms/GBA/marioworld1.gba",
+      "core": "gba",
+      "size": 2
+    },
+    {
+      "name": "pkmnESM.gba",
+      "path": "roms/GBA/pkmnESM.gba",
+      "core": "gba",
+      "size": 16777216
+    },
+    {
+      "name": "pkmnRF.gba",
+      "path": "roms/GBA/pkmnRF.gba",
+      "core": "gba",
+      "size": 16777216
+    },
+    {
+      "name": "pkmnVH.gba",
+      "path": "roms/GBA/pkmnVH.gba",
+      "core": "gba",
+      "size": 16777216
+    },
+    {
+      "name": "spmarioworld1.gba",
+      "path": "roms/GBA/spmarioworld1.gba",
+      "core": "gba",
+      "size": 4194304
+    },
+    {
+      "name": "GameBoyColor.Ya",
+      "path": "roms/GBC/GameBoyColor.Ya",
+      "core": "gbc",
+      "size": 2
+    },
+    {
+      "name": "Nintendo64.sii",
+      "path": "roms/N64/Nintendo64.sii",
+      "core": "n64",
+      "size": 2
+    },
+    {
+      "name": "StarFox.z64",
+      "path": "roms/N64/StarFox.z64",
+      "core": "n64",
+      "size": 12582912
+    },
+    {
+      "name": "KirbyAdventure.nes",
+      "path": "roms/NES/KirbyAdventure.nes",
+      "core": "nes",
+      "size": 786448
+    },
+    {
+      "name": "mario.nes",
+      "path": "roms/NES/mario.nes",
+      "core": "nes",
+      "size": 40976
+    },
+    {
+      "name": "Metroid.nes",
+      "path": "roms/NES/Metroid.nes",
+      "core": "nes",
+      "size": 131088
+    },
+    {
+      "name": "SuperMarioBros2.nes",
+      "path": "roms/NES/SuperMarioBros2.nes",
+      "core": "nes",
+      "size": 262160
+    },
+    {
+      "name": "SuperMarioBros3.nes",
+      "path": "roms/NES/SuperMarioBros3.nes",
+      "core": "nes",
+      "size": 393232
+    },
+    {
+      "name": "SuperMarioWorld.nes",
+      "path": "roms/NES/SuperMarioWorld.nes",
+      "core": "nes",
+      "size": 786448
+    },
+    {
+      "name": "Ejemplopsx.algo",
+      "path": "roms/PSX/Ejemplopsx.algo",
+      "core": "psx",
+      "size": 2
+    },
+    {
+      "name": "SegaGenesis.algo",
+      "path": "roms/segaMD/SegaGenesis.algo",
+      "core": "segamd",
+      "size": 2
+    },
+    {
+      "name": "DKCountry.smc",
+      "path": "roms/SNES/DKCountry.smc",
+      "core": "snes",
+      "size": 4194304
+    },
+    {
+      "name": "SNES.algo",
+      "path": "roms/SNES/SNES.algo",
+      "core": "snes",
+      "size": 2
+    }
+  ]
+}

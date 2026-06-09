@@ -1,12 +1,27 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "nfc-retro-arcade",
+  "main": "src/worker.mjs",
   "compatibility_date": "2026-05-24",
   "observability": {
     "enabled": true
   },
+  "kv_namespaces": [
+    {
+      "binding": "NFC_REGISTRY"
+    }
+  ],
   "assets": {
-    "directory": "."
+    "directory": "public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/",
+      "/index.html",
+      "/api/*",
+      "/roms/*",
+      "/data/bios/*",
+      "/admin*"
+    ]
   },
   "compatibility_flags": [
     "nodejs_compat"
