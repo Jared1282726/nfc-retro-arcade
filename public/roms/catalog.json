@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-09T19:12:35.514Z",
+  "generatedAt": "2026-06-09T21:36:54.896Z",
   "roms": [
     {
       "name": "GameBoy.si",
@@ -12,6 +12,12 @@
       "path": "roms/GBA/GameBoyAdvance.Yay",
       "core": "gba",
       "size": 2
+    },
+    {
+      "name": "KirbyNightmareInDreamland.gba",
+      "path": "roms/GBA/KirbyNightmareInDreamland.gba",
+      "core": "gba",
+      "size": 8388608
     },
     {
       "name": "marioworld1.gba",
