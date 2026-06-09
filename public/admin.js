@@ -16,6 +16,7 @@ const uploadResult = document.getElementById("rom-upload-result");
 const githubTarget = document.getElementById("github-target");
 
 const cardForm = document.getElementById("card-form");
+const cardGamePicker = document.getElementById("card-game-picker");
 const cardName = document.getElementById("card-name");
 const cardTag = document.getElementById("card-tag");
 const cardKey = document.getElementById("card-key");
@@ -29,6 +30,7 @@ const cardsList = document.getElementById("cards-list");
 const cardsEmpty = document.getElementById("cards-empty");
 const romsList = document.getElementById("roms-list");
 const romsEmpty = document.getElementById("roms-empty");
+const romNameOptions = document.getElementById("rom-name-options");
 
 const cardTemplate = document.getElementById("card-template");
 const romTemplate = document.getElementById("rom-template");
@@ -89,6 +91,35 @@ function guessGameName(value) {
   return withSpaces.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function getRomDisplayName(rom) {
+  return rom.displayName || rom.suggestedName || guessGameName(rom.name || rom.path) || rom.name || rom.path;
+}
+
+function buildPickerValue(rom) {
+  return `${getRomDisplayName(rom)} [${String(rom.core || "").toUpperCase()}]`;
+}
+
+function normalizeRom(rom) {
+  return {
+    ...rom,
+    core: normalizeCoreValue(rom.core),
+    displayName: getRomDisplayName(rom)
+  };
+}
+
+function findRomByPickerValue(value) {
+  const trimmed = String(value || "").trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  return romCatalog.find((rom) => buildPickerValue(rom) === trimmed)
+    || romCatalog.find((rom) => rom.displayName === trimmed)
+    || romCatalog.find((rom) => rom.path === trimmed)
+    || null;
+}
+
 async function api(path, options = {}) {
   const response = await fetch(path, {
     credentials: "same-origin",
@@ -141,11 +172,12 @@ function primeCardForm() {
 
 function applyRomToCard(rom, options = {}) {
   const resolvedCore = resolveSelectValue(cardCore, rom.core);
-  const suggestedName = rom.suggestedName || rom.name || guessGameName(rom.path);
+  const suggestedName = getRomDisplayName(rom);
   const shouldReplaceName = options.replaceName || !cardName.value.trim();
   const shouldReplaceTag = options.replaceTag || !cardTag.value.trim();
 
   cardGameUrl.value = rom.path;
+  cardGamePicker.value = buildPickerValue(rom);
 
   if (resolvedCore) {
     cardCore.value = resolvedCore;
@@ -160,6 +192,16 @@ function applyRomToCard(rom, options = {}) {
   }
 
   primeCardForm();
+}
+
+function renderGamePickerOptions(roms) {
+  romNameOptions.textContent = "";
+
+  for (const rom of roms) {
+    const option = document.createElement("option");
+    option.value = buildPickerValue(rom);
+    romNameOptions.appendChild(option);
+  }
 }
 
 function renderCards(cards) {
@@ -197,7 +239,7 @@ function renderRoms(roms) {
 
   for (const rom of roms) {
     const fragment = romTemplate.content.cloneNode(true);
-    fragment.querySelector('[data-role="key"]').textContent = rom.name || rom.path;
+    fragment.querySelector('[data-role="key"]').textContent = rom.displayName;
     fragment.querySelector('[data-role="path"]').textContent = rom.path;
     fragment.querySelector('[data-role="size"]').textContent = formatBytes(rom.size);
 
@@ -220,10 +262,16 @@ async function refreshCards() {
 
 async function refreshRoms() {
   const { roms } = await api("/api/admin/roms");
-  romCatalog = roms;
+  romCatalog = roms.map(normalizeRom);
+  romCatalog.sort((left, right) => left.displayName.localeCompare(right.displayName));
+  renderGamePickerOptions(romCatalog);
+  applyRomFilter();
+}
+
+function applyRomFilter() {
   const selectedCore = normalizeCoreValue(romFilterCore.value);
   const filtered = selectedCore
-    ? romCatalog.filter((rom) => normalizeCoreValue(rom.core) === selectedCore)
+    ? romCatalog.filter((rom) => rom.core === selectedCore)
     : romCatalog;
   renderRoms(filtered);
 }
@@ -289,6 +337,22 @@ document.getElementById("key-button").addEventListener("click", () => {
 cardName.addEventListener("input", () => {
   if (!cardTag.value) {
     cardTag.value = slugifyTag(cardName.value);
+  }
+});
+
+cardGamePicker.addEventListener("change", () => {
+  const rom = findRomByPickerValue(cardGamePicker.value);
+
+  if (rom) {
+    applyRomToCard(rom, { replaceName: true, replaceTag: true });
+  }
+});
+
+cardGamePicker.addEventListener("input", () => {
+  const rom = findRomByPickerValue(cardGamePicker.value);
+
+  if (rom) {
+    applyRomToCard(rom, { replaceName: true, replaceTag: true });
   }
 });
 
@@ -386,6 +450,7 @@ cardForm.addEventListener("submit", async (event) => {
     );
 
     cardForm.reset();
+    cardGamePicker.value = "";
     primeCardForm();
     await refreshCards();
   } catch (error) {
@@ -398,7 +463,8 @@ cardForm.addEventListener("submit", async (event) => {
 document.getElementById("refresh-cards").addEventListener("click", refreshCards);
 document.getElementById("refresh-roms").addEventListener("click", refreshRoms);
 document.getElementById("refresh-roms-top").addEventListener("click", refreshRoms);
-romFilterCore.addEventListener("change", refreshRoms);
+romFilterCore.addEventListener("change", applyRomFilter);
+romFilterCore.addEventListener("input", applyRomFilter);
 
 primeCardForm();
 

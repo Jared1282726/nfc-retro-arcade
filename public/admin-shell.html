@@ -125,6 +125,12 @@
 
           <form id="card-form" class="stack">
             <label>
+              <span>Juego del catalogo</span>
+              <input id="card-game-picker" name="catalogGame" type="text" list="rom-name-options" placeholder="Elige un juego disponible" autocomplete="off" />
+              <small class="muted">Al elegir uno, se llenan core, ruta y nombre automaticamente.</small>
+            </label>
+
+            <label>
               <span>Nombre del juego</span>
               <input id="card-name" name="name" type="text" placeholder="Super Mario Bros." required />
             </label>
@@ -235,6 +241,8 @@
       </div>
     </article>
   </template>
+
+  <datalist id="rom-name-options"></datalist>
 
   <script src="/admin.js" type="module"></script>
 </body>
