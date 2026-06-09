@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,7 +13,7 @@
       <div>
         <p class="eyebrow">Private Console</p>
         <h1>NFC Arcade Admin</h1>
-        <p class="hero-copy">Sube ROMs, genera nuevas llaves NFC y administra tu catalogo sin editar archivos a mano.</p>
+        <p class="hero-copy">Sube ROMs al repo, genera nuevas llaves NFC y administra tu catalogo sin editar archivos a mano.</p>
       </div>
       <div class="hero-actions">
         <span id="session-badge" class="badge">Checking session...</span>
@@ -50,12 +50,50 @@
 
           <div class="stack">
             <div class="result">
-              <strong>Flujo recomendado</strong><br />
-              1. Sube el ROM a `public/roms/&lt;core&gt;/` en GitHub.<br />
-              2. Actualiza `public/roms/catalog.json` corriendo `node scripts/build-rom-catalog.mjs`.<br />
-              3. Haz deploy y luego crea la tarjeta desde aqui.<br />
-              4. El ROM quedara oculto detras de `/api/asset?key=...`.
+              <strong>Flujo nuevo</strong><br />
+              1. Elige el core y sube el ROM desde aqui.<br />
+              2. El Worker lo guarda en GitHub dentro de `public/roms/...`.<br />
+              3. `public/roms/catalog.json` se actualiza automaticamente.<br />
+              4. La ruta del juego se llena sola para la nueva NFC.
             </div>
+
+            <div id="upload-setup" class="result hidden"></div>
+
+            <form id="rom-upload-form" class="stack">
+              <label>
+                <span>Core del ROM</span>
+                <select id="upload-core" name="core" required>
+                  <option value="nes">NES</option>
+                  <option value="snes">SNES</option>
+                  <option value="gba">GBA</option>
+                  <option value="gb">GB</option>
+                  <option value="gbc">GBC</option>
+                  <option value="n64">N64</option>
+                  <option value="psx">PSX</option>
+                  <option value="segaMD">Sega Genesis</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Subcarpeta opcional</span>
+                <input id="upload-subfolder" name="subfolder" type="text" placeholder="zelda64 o pokemon/hacks" />
+              </label>
+
+              <label>
+                <span>Archivo ROM</span>
+                <input id="upload-file" name="rom" type="file" required />
+              </label>
+
+              <label>
+                <span>Nombre final opcional</span>
+                <input id="upload-file-name" name="fileName" type="text" placeholder="OcarinaOfTime.z64" />
+              </label>
+
+              <p class="muted">Destino automatico: <span id="github-target" class="mono">GitHub no configurado</span></p>
+              <button id="upload-button" class="primary" type="submit">Subir ROM al repo</button>
+            </form>
+
+            <div id="rom-upload-result" class="result hidden"></div>
 
             <label>
               <span>Filtrar por core</span>
@@ -123,7 +161,8 @@
 
             <label>
               <span>Ruta del juego</span>
-              <input id="card-game-url" name="gameUrl" type="text" placeholder="roms/NES/mario.nes" required />
+              <input id="card-game-url" name="gameUrl" type="text" placeholder="Se llena sola al subir o seleccionar un ROM" required />
+              <small class="muted">Se autocompleta cuando eliges un ROM del catalogo o subes uno nuevo.</small>
             </label>
 
             <label>

@@ -1,2 +1,6 @@
 ADMIN_PASSWORD=change-me
 ADMIN_SESSION_SECRET=replace-with-a-long-random-secret
+GITHUB_TOKEN=github-pat-with-contents-write
+GITHUB_REPO_OWNER=Jared1282726
+GITHUB_REPO_NAME=nfc-retro-arcade
+GITHUB_REPO_BRANCH=main

@@ -6,6 +6,15 @@ const dashboard = document.getElementById("dashboard");
 const setupPanel = document.getElementById("setup-panel");
 const setupIssues = document.getElementById("setup-issues");
 
+const romUploadForm = document.getElementById("rom-upload-form");
+const uploadSetup = document.getElementById("upload-setup");
+const uploadCore = document.getElementById("upload-core");
+const uploadSubfolder = document.getElementById("upload-subfolder");
+const uploadFile = document.getElementById("upload-file");
+const uploadFileName = document.getElementById("upload-file-name");
+const uploadResult = document.getElementById("rom-upload-result");
+const githubTarget = document.getElementById("github-target");
+
 const cardForm = document.getElementById("card-form");
 const cardName = document.getElementById("card-name");
 const cardTag = document.getElementById("card-tag");
@@ -34,6 +43,19 @@ function slugifyTag(value) {
     .replace(/_+/g, "_");
 }
 
+function normalizeCoreValue(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .toLowerCase();
+}
+
+function resolveSelectValue(select, value) {
+  const wanted = normalizeCoreValue(value);
+  const option = Array.from(select.options).find((entry) => normalizeCoreValue(entry.value) === wanted);
+  return option?.value || "";
+}
+
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes < 1024) {
     return `${bytes || 0} B`;
@@ -49,6 +71,22 @@ function formatBytes(bytes) {
   }
 
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[index]}`;
+}
+
+function guessGameName(value) {
+  const fileName = String(value || "").split("/").pop() || "";
+  const baseName = fileName.replace(/\.[^.]+$/, "");
+  const withSpaces = baseName
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!withSpaces) {
+    return "";
+  }
+
+  return withSpaces.replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 async function api(path, options = {}) {
@@ -95,6 +133,35 @@ async function copyText(value) {
   await navigator.clipboard.writeText(value);
 }
 
+function primeCardForm() {
+  if (!cardKey.value.trim()) {
+    cardKey.value = crypto.randomUUID();
+  }
+}
+
+function applyRomToCard(rom, options = {}) {
+  const resolvedCore = resolveSelectValue(cardCore, rom.core);
+  const suggestedName = rom.suggestedName || rom.name || guessGameName(rom.path);
+  const shouldReplaceName = options.replaceName || !cardName.value.trim();
+  const shouldReplaceTag = options.replaceTag || !cardTag.value.trim();
+
+  cardGameUrl.value = rom.path;
+
+  if (resolvedCore) {
+    cardCore.value = resolvedCore;
+  }
+
+  if (suggestedName && shouldReplaceName) {
+    cardName.value = suggestedName;
+  }
+
+  if (shouldReplaceTag) {
+    cardTag.value = slugifyTag(cardName.value || suggestedName || "");
+  }
+
+  primeCardForm();
+}
+
 function renderCards(cards) {
   cardsList.textContent = "";
   cardsEmpty.classList.toggle("hidden", cards.length !== 0);
@@ -135,8 +202,7 @@ function renderRoms(roms) {
     fragment.querySelector('[data-role="size"]').textContent = formatBytes(rom.size);
 
     fragment.querySelector("[data-copy]").addEventListener("click", async (event) => {
-      cardGameUrl.value = rom.path;
-      cardCore.value = rom.core || cardCore.value;
+      applyRomToCard(rom);
       event.currentTarget.textContent = "Seleccionado";
       setTimeout(() => {
         event.currentTarget.textContent = "Usar en NFC";
@@ -155,15 +221,37 @@ async function refreshCards() {
 async function refreshRoms() {
   const { roms } = await api("/api/admin/roms");
   romCatalog = roms;
-  const selectedCore = romFilterCore.value;
+  const selectedCore = normalizeCoreValue(romFilterCore.value);
   const filtered = selectedCore
-    ? romCatalog.filter((rom) => rom.core === selectedCore)
+    ? romCatalog.filter((rom) => normalizeCoreValue(rom.core) === selectedCore)
     : romCatalog;
   renderRoms(filtered);
 }
 
 async function loadDashboard() {
   await Promise.all([refreshCards(), refreshRoms()]);
+}
+
+function renderUploadSetup(session) {
+  githubTarget.textContent = session.githubTarget || "GitHub no configurado";
+  clearMessage(uploadSetup);
+
+  if (session.uploadConfigured) {
+    setMessage(
+      uploadSetup,
+      "success",
+      `Los ROMs nuevos se subiran directo a <span class="mono">${session.githubTarget}</span> y dejaran lista la ruta para la NFC.`
+    );
+    romUploadForm.classList.remove("hidden");
+    return;
+  }
+
+  setMessage(
+    uploadSetup,
+    "error",
+    session.uploadIssues.map((issue) => `<span>${issue}</span>`).join("<br>")
+  );
+  romUploadForm.classList.add("hidden");
 }
 
 async function updateSession() {
@@ -182,6 +270,8 @@ async function updateSession() {
     item.textContent = issue;
     setupIssues.appendChild(item);
   }
+
+  renderUploadSetup(session);
 
   if (authenticated) {
     await loadDashboard();
@@ -228,6 +318,46 @@ logoutButton.addEventListener("click", async () => {
   await updateSession();
 });
 
+romUploadForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearMessage(uploadResult);
+  const button = romUploadForm.querySelector("button[type=submit]");
+  setButtonBusy(button, true, "Subiendo...");
+
+  try {
+    const formData = new FormData();
+    formData.set("core", uploadCore.value);
+    formData.set("subfolder", uploadSubfolder.value.trim());
+    formData.set("fileName", uploadFileName.value.trim());
+
+    if (!uploadFile.files?.[0]) {
+      throw new Error("Elige un ROM antes de subirlo.");
+    }
+
+    formData.set("rom", uploadFile.files[0]);
+
+    const { upload } = await api("/api/admin/roms", {
+      method: "POST",
+      body: formData
+    });
+
+    applyRomToCard(upload, { replaceName: true, replaceTag: true });
+    setMessage(
+      uploadResult,
+      "success",
+      `<strong>ROM subido al repo.</strong><br><span class="mono">${upload.path}</span><br><span>La ruta ya quedo lista para la NFC. Si Pages hace auto deploy, espera a que termine antes de probar el juego en vivo.</span>`
+    );
+
+    romUploadForm.reset();
+    uploadCore.value = resolveSelectValue(uploadCore, upload.core) || uploadCore.value;
+    await refreshRoms();
+  } catch (error) {
+    setMessage(uploadResult, "error", error.message);
+  } finally {
+    setButtonBusy(button, false, "Subir ROM al repo");
+  }
+});
+
 cardForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   clearMessage(cardResult);
@@ -256,6 +386,7 @@ cardForm.addEventListener("submit", async (event) => {
     );
 
     cardForm.reset();
+    primeCardForm();
     await refreshCards();
   } catch (error) {
     setMessage(cardResult, "error", error.message);
@@ -268,6 +399,8 @@ document.getElementById("refresh-cards").addEventListener("click", refreshCards)
 document.getElementById("refresh-roms").addEventListener("click", refreshRoms);
 document.getElementById("refresh-roms-top").addEventListener("click", refreshRoms);
 romFilterCore.addEventListener("change", refreshRoms);
+
+primeCardForm();
 
 updateSession().catch((error) => {
   sessionBadge.textContent = "Error";
