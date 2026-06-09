@@ -602,8 +602,23 @@ async function handleProtectedEntryRequest(request, env) {
     });
   }
 
+  const rootAssetResponse = await env.ASSETS.fetch(request);
+
+  if (rootAssetResponse.ok) {
+    return rootAssetResponse;
+  }
+
   const entryRequest = new Request(new URL("/index.html", request.url), request);
-  return env.ASSETS.fetch(entryRequest);
+  const entryResponse = await env.ASSETS.fetch(entryRequest);
+
+  if (entryResponse.ok) {
+    return entryResponse;
+  }
+
+  return new Response("Entry asset not found.", {
+    status: 404,
+    headers: PRIVATE_RESPONSE_HEADERS
+  });
 }
 
 async function serveAdminPage(request, env) {
