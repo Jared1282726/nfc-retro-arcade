@@ -376,8 +376,10 @@ class EmulatorJS {
         // Initialize downloader with cache
         this.downloader = new EJS_Download(this.storageCache, this);
         
-        // This is not cache. This is save data
-        this.storage.states = new EJS_STORAGE("EmulatorJS-states", "states");
+        // On Safari/iPhone we prefer boot reliability over IndexedDB-backed save states.
+        this.storage.states = this.config.disableDatabases === true
+            ? new EJS_DUMMYSTORAGE()
+            : new EJS_STORAGE("EmulatorJS-states", "states");
 
         this.game.classList.add("ejs_game");
         if (typeof this.config.backgroundImg === "string") {
@@ -785,6 +787,9 @@ class EmulatorJS {
         return parts.join(".");
     }
     saveInBrowserSupported() {
+        if (this.config.disableDatabases === true) {
+            return false;
+        }
         return !!window.indexedDB && (typeof this.config.gameName === "string" || !this.config.gameUrl.startsWith("blob:"));
     }
     displayMessage(message, time) {

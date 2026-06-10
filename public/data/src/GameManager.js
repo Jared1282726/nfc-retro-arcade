@@ -70,13 +70,33 @@ class EJS_GameManager {
         return new Promise(async resolve => {
             this.mkdir("/data");
             this.mkdir("/data/saves");
+            if (this.EJS.config.disableDatabases === true) {
+                if (this.EJS.debug) {
+                    console.log("Persistent browser storage disabled for this session.");
+                }
+                resolve();
+                return;
+            }
             try {
+                let settled = false;
+                const finish = () => {
+                    if (settled) return;
+                    settled = true;
+                    resolve();
+                };
+
                 this.FS.mount(this.FS.filesystems.IDBFS, { autoPersist: true }, "/data/saves");
+                const timeoutId = setTimeout(() => {
+                    console.warn("IDBFS sync timed out, continuing without persistent saves.");
+                    finish();
+                }, 3000);
+
                 this.FS.syncfs(true, (err) => {
+                    clearTimeout(timeoutId);
                     if (err) {
                         console.warn("IDBFS sync failed, continuing without persistent saves.", err);
                     }
-                    resolve();
+                    finish();
                 });
             } catch (err) {
                 console.warn("IDBFS mount failed, continuing without persistent saves.", err);

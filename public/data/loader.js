@@ -198,6 +198,7 @@ const config = {
     browserMode: window.EJS_browserMode,
     additionalShaders: window.EJS_shaders,
     fixedSaveInterval: window.EJS_fixedSaveInterval,
+    disableDatabases: window.EJS_disableDatabases,
     disableAutoUnload: window.EJS_disableAutoUnload,
     disableBatchBootup: window.EJS_disableBatchBootup,
     askBeforeExit: window.EJS_askBeforeExit

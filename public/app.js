@@ -1,4 +1,4 @@
-const EJS_DATA_PATH = "https://cdn.emulatorjs.org/stable/data/";
+const EJS_DATA_PATH = "/data/";
 
 const params = new URLSearchParams(window.location.search);
 const cardKey = params.get("key");
@@ -136,6 +136,7 @@ function bootGame(game) {
   window.EJS_pathtodata = EJS_DATA_PATH;
   window.EJS_disableLocalStorage = isIPhoneSafari;
   window.EJS_cacheConfig = isIPhoneSafari ? { enabled: false } : undefined;
+  window.EJS_disableDatabases = isIPhoneSafari;
 
   if (game.hasBios) {
     const biosUrl = new URL(assetUrl);
@@ -154,6 +155,7 @@ function bootGame(game) {
     console.log("dataPath", window.EJS_pathtodata);
     console.log("biosUrl", window.EJS_biosUrl || "none");
     console.log("isIPhoneSafari", isIPhoneSafari);
+    console.log("disableDatabases", window.EJS_disableDatabases);
   }
 
   const script = document.createElement("script");

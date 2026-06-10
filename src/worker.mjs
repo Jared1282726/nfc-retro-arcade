@@ -955,14 +955,22 @@ async function handleProtectedEntryRequest(request, env) {
   const rootAssetResponse = await env.ASSETS.fetch(request);
 
   if (rootAssetResponse.ok) {
-    return rootAssetResponse;
+    return new Response(rootAssetResponse.body, {
+      status: rootAssetResponse.status,
+      statusText: rootAssetResponse.statusText,
+      headers: clonePrivateAssetHeaders(rootAssetResponse.headers)
+    });
   }
 
   const entryRequest = new Request(new URL("/index.html", request.url), request);
   const entryResponse = await env.ASSETS.fetch(entryRequest);
 
   if (entryResponse.ok) {
-    return entryResponse;
+    return new Response(entryResponse.body, {
+      status: entryResponse.status,
+      statusText: entryResponse.statusText,
+      headers: clonePrivateAssetHeaders(entryResponse.headers)
+    });
   }
 
   return new Response("Entry asset not found.", {
